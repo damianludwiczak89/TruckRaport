@@ -1,0 +1,106 @@
+{% extends "truck/layout.html" %}
+{% load static %}
+{% block script %}
+<script src="{% static 'truck/trucks.js' %}"></script>
+{% endblock %}
+{% block body %}
+<div id="info">
+        To generate a raport choose a week or a month for a set date, then choose trucks and speditions you want to include
+</div>
+
+<div id="forms">
+<form action="{% url 'trucks' %}" method="post">
+    {% csrf_token %}
+    {{ truckform.Name }}
+    <button type="submit" class="btn btn-success">Add</button>
+    </form>
+    <form action="{% url 'add_spedition' %}" method="post">
+        {% csrf_token %}
+        {{ spedition.Name }}
+        <button type="submit" class="btn btn-success">Add</button>
+        </form>
+
+
+<form action="{% url 'raport' %}" method="post">
+    {% csrf_token %}
+<div class="form-check">
+    <input class="form-check-input" type="radio" name="week_or_month" value="week" checked>
+    <label class="form-check-label" for="radiobutton1">
+        Week
+    </label>
+</div>
+<div class="form-check">
+    <input class="form-check-input" type="radio" name="week_or_month"
+           value="month">
+    <label class="form-check-label" for="exampleRadios2">
+        Month
+    </label>
+</div>
+    {{ raport.Week }} {{ raport.Month }} {{ raport.Year }} <input class="btn btn-success" type="submit" value="Raport">
+</div>
+
+
+
+<div id="tables">
+<div class="row">
+    <div class="column">
+
+<table id="truck_table" class="table table-hover">
+    <thead>
+      <tr>
+        <th scope="col">Truck</th>
+        <th scope="col"><input class="form-check-input" type="checkbox" id="all_trucks"> </th>
+      </tr>
+    </thead>
+    <tbody>
+{% for truck in trucks %}
+
+<tr>
+    <td>
+        <a href="{% url 'truck_view' truck.id %}">{{ truck.name }}</a> 
+    </td>
+
+    <td>
+
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="truck_box" value={{ truck.id }} name="truck_box">
+        </div>
+    </td>
+</tr>
+{% endfor %}
+</table>
+
+    </div>
+    <div class="column">
+
+<table id="sped_table" class="table table-hover">
+    <thead>
+      <tr>
+        <th scope="col">Spedition</th>
+        <th scope="col"><input class="form-check-input" type="checkbox" id="all_sped"> </th>
+      </tr>
+    </thead>
+    <tbody>
+
+
+{% for sped in speditions %}
+
+<tr>
+    <td>
+        <a href="{% url 'speditions' %}">{{ sped.name }}</a> 
+    </td>
+
+    <td>
+
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="sped_box" value={{ sped.id }} name="sped_box">
+        </div>
+    </td>
+</tr>
+{% endfor %}
+</form>
+</table>
+</div>
+</div>
+</div>
+{% endblock %}

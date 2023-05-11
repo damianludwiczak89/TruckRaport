@@ -1,0 +1,25 @@
+{% extends "truck/layout.html" %}
+{% load static %}
+
+{% block body %}
+
+{% if message %}
+<div>{{ message }}</div>
+{% endif %}
+
+<div class="index">
+<form action="{% url 'login' %}" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+        <input autofocus class="form-control" type="text" name="username" placeholder="Username">
+    </div>
+    <div class="form-group">
+        <input class="form-control" type="password" name="password" placeholder="Password">
+    </div>
+    <input class="btn btn-primary" type="submit" value="Login">
+</form>
+</div>
+<div style="margin-left: 200px; padding-top: 10px;">
+Don't have an account? <a href="{% url 'register' %}">Register here.</a>
+</div>
+{% endblock %}

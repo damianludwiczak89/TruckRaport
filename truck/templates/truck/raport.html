@@ -1,0 +1,42 @@
+{% extends "truck/layout.html" %}
+{% load static %}
+
+{% block script %}
+<script src="{% static 'truck/raport.js' %}"></script>
+{% endblock %}
+{% block body %}
+{% if error %}
+{{ error }}
+{% else %}
+<br>
+Raport for {{ period }}, {{ year }} -
+
+{% if speditions|length > 1 %}
+{{ speditions }}
+{% else %}
+{% for spedition in speditions %} - {{ spedition }} {% endfor %}
+
+{% endif %}
+<br>
+Average per truck: {{ avg_km }}km -- {{ avg_freight }} € --  {{ avg_rate }} €/km
+
+<table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Truck</th>
+        <th scope="col">KM</th>
+        <th scope="col">Freight €</th>
+        <th scope="col">Rate €/km</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for truck in raport %}
+        <tr>
+            <td>{{ truck.name  }}</td>
+            <td>{{ truck.km  }}</td>
+            <td>{{ truck.freight  }}</td>
+            <td>{{ truck.rate }}</td>
+        </tr>
+{% endfor %}
+{% endif %}
+{% endblock %}
