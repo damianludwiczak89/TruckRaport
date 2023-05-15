@@ -13,27 +13,9 @@ import collections, functools, operator
 from datetime import datetime
 from . import helpers
 
-# Data for dropdown lists
-weeks = [(x, x) for x in range(1, 54)]
-months =  [("January", "January"), ("Febraury", "Febraury"), ("March", "March"), ("April", "April"), ("May", "May"), 
-        ("June", "June"), ("July", "July"), ("August", "August"), ("September", "September"), ("October", "October"), 
-        ("November", "November"), ("December", "December")]
-years = [(x, x) for x in range(2023, 2031)]
-
 # Forms
 class RaportForm(forms.Form):
-    Week = forms.CharField(
-        max_length=12,
-        label='Week', widget=forms.Select(choices=weeks)
-        )
-    Month = forms.CharField(
-        max_length=12,
-        label='Month', widget=forms.Select(choices=months)
-        )
-    Year = forms.CharField(
-        max_length=12,
-        label='Year', widget=forms.Select(choices=years)
-        )
+    Date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
 
 
 class TruckForm(forms.Form):
@@ -56,7 +38,7 @@ class EditTruckForm(forms.Form):
         label='Truck',
         widget=forms.TextInput(attrs={'placeholder': 'Edit truck name', 'required': 'true'})
         )
-    
+
 class EditSpeditionForm(forms.Form):
     New_name = forms.CharField(
         max_length = 40,
@@ -122,6 +104,7 @@ def register(request):
     if request.method == "POST":
         username = request.POST["username"]
         email = request.POST["email"]
+        name = request.POST["spedition"]
 
         # Ensure password matches confirmation
         password = request.POST["password"]
@@ -169,7 +152,7 @@ def trucks(request):
             return render(request, "truck/login.html", {
                 "message": "Required to log in"
             })
-        
+
         return render(request, "truck/trucks.html", {
             "truckform": TruckForm(),
             "trucks": truck,
@@ -195,19 +178,19 @@ def truck_view(request, truck_id):
             tour.save()
             return HttpResponseRedirect(reverse("truck_view", args=(truck_id,)))
         else:
-            return HttpResponseRedirect(reverse("truck_view", args=(truck_id,)))  
+            return HttpResponseRedirect(reverse("truck_view", args=(truck_id,)))
     else:
-        
+
         # Set pagination for 30 items per page
         tours = Tour.objects.filter(truck=truck).order_by("-date")
         paginator = Paginator(tours, 30)
         page_number = request.GET.get('page')
-        tours_pagin = paginator.get_page(page_number) 
+        tours_pagin = paginator.get_page(page_number)
 
         # Stats for current week and month
         week = []
         month = []
-        date = datetime.now() 
+        date = datetime.now()
         for tour in tours:
             if tour.date.isocalendar().week == date.isocalendar().week and tour.date.isocalendar().year == date.isocalendar().year:
                 tour_week = {
@@ -226,7 +209,7 @@ def truck_view(request, truck_id):
             # Add values from dictionary by key
             current_week = dict(functools.reduce(operator.add,
             map(collections.Counter, week)))
-            
+
             current_week = {
                 "km": current_week["km"],
                 "freight": current_week["freight"],
@@ -266,7 +249,7 @@ def truck_view(request, truck_id):
             "month": current_month,
             "speditions": Spedition.objects.filter(user=request.user)
         })
-    
+
 @csrf_exempt
 def default_rate(request):
     # Query for user's default rate
@@ -274,10 +257,10 @@ def default_rate(request):
         user = User.objects.get(pk=request.user.id)
     except User.DoesNotExist:
         return JsonResponse({"error": "User not found."}, status=404)
-    
+
     if request.method == "GET":
         return JsonResponse(user.serialize())
-    
+
     elif request.method == "PUT":
 
         # Change user's default rate in database
@@ -286,35 +269,35 @@ def default_rate(request):
             user.default_rate = data["default_rate"]
         user.save()
         return HttpResponse(status=204)
-    
+
     else:
         return JsonResponse({
             "error": "GET or PUT request required."
         }, status=400)
-    
+
 def delete_tour(request, tour_id):
     if request.method == "POST":
         truck = Truck.objects.get(tour=tour_id)
         tour = Tour.objects.get(pk=tour_id)
         tour.delete()
         id = truck.id
-        return HttpResponseRedirect(reverse("truck_view", args=(id,)))  
-    
+        return HttpResponseRedirect(reverse("truck_view", args=(id,)))
+
 def get_tour(request, tour_id):
     try:
         tour = Tour.objects.get(pk=tour_id)
     except Tour.DoesNotExist:
         return JsonResponse({"error": "Tour not found."}, status=404)
-    
+
     if request.method == "GET":
         return JsonResponse(tour.serialize())
     else:
         return JsonResponse({
             "error": "GET request required."
         }, status=400)
-    
+
 def edit_tour(request):
-    
+
     if request.method == "POST":
         form = TourForm(request.POST)
         if form.is_valid():
@@ -329,28 +312,28 @@ def edit_tour(request):
             truck_id = tour[0].truck.id
             return HttpResponseRedirect(reverse("truck_view", args=(truck_id,)))
         else:
-            return HttpResponseRedirect(reverse("truck_view", args=(truck_id,)))  
-        
+            return HttpResponseRedirect(reverse("truck_view", args=(truck_id,)))
+
 @csrf_exempt
 def edit_truck(request, truck_id):
     try:
         truck = Truck.objects.get(pk=truck_id)
     except Truck.DoesNotExist:
         return JsonResponse({"error": "Truck not found."}, status=404)
-    
-    
+
+
     if request.method == "PUT":
         data = json.loads(request.body)
         if data.get("truck_name") is not None:
             truck.name = data["truck_name"]
         truck.save()
         return HttpResponse(status=204)
-    
+
     else:
         return JsonResponse({
             "error": "PUT request required."
         }, status=400)
-    
+
 
 def raport(request):
     if request.method == "POST":
@@ -362,19 +345,19 @@ def raport(request):
             if len(truck_ids) == 0:
                 return render(request, "truck/raport.html", {
                 "error": "No truck chosen for the raport",
-                }) 
+                })
 
             # Gather spedition ids from checked boxes
             sped_ids = request.POST.getlist("sped_box")
             if len(sped_ids) == 0:
                 return render(request, "truck/raport.html", {
                 "error": "No spedition chosen for the raport",
-                }) 
+                })
             sped_ids = [int(i) for i in sped_ids]
 
             if len(Spedition.objects.filter(user=request.user)) == len(sped_ids):
                 spedition_names = "All speditions"
-            
+
             else:
                 spedition_names = []
 
@@ -385,8 +368,8 @@ def raport(request):
             # Check if raport is for week or a month
             week_or_month = request.POST.get("week_or_month")
             if week_or_month == "week":
-                chosen_year = int(form.cleaned_data["Year"])
-                chosen_week = int(form.cleaned_data["Week"])
+                chosen_year = form.cleaned_data["Date"].isocalendar().year
+                chosen_week = form.cleaned_data["Date"].isocalendar().week
 
                 # Make a list of chosen trucks
                 trucks = []
@@ -409,13 +392,13 @@ def raport(request):
                                 "freight": tour.freight
                             }
                             week_tour.append(tour_week)
-                    
+
                     # Add values from dictionaries by key
                     if week_tour:
                         week = dict(functools.reduce(operator.add,
                         map(collections.Counter, week_tour)))
-                        
-                        # Create a new dict with proper keys 
+
+                        # Create a new dict with proper keys
                         week = {
                             "name": truck.name,
                             "km": week["km"],
@@ -434,9 +417,9 @@ def raport(request):
                     truck_tours.append(week)
 
                 # Calculate average km, freight and rate
-                avg_km = 0 
+                avg_km = 0
                 avg_freight = 0
-                
+
 
                 for i in truck_tours:
                     avg_km += i["km"]
@@ -460,8 +443,8 @@ def raport(request):
                     "speditions": spedition_names,
                 })
             else:
-                chosen_year = int(form.cleaned_data["Year"])
-                chosen_month = helpers.month_convert(form.cleaned_data["Month"])
+                chosen_year = form.cleaned_data["Date"].isocalendar().year
+                chosen_month = form.cleaned_data["Date"].month
 
                 # Get list of chosen trucks
                 trucks = []
@@ -476,11 +459,11 @@ def raport(request):
                 if len(sped_ids) == 0:
                     return render(request, "truck/raport.html", {
                     "error": "No spedition chosen for the raport",
-                    }) 
+                    })
                 sped_ids = [int(i) for i in sped_ids]
                 if len(Spedition.objects.filter(user=request.user)) == len(sped_ids):
                     spedition_names = "All speditions"
-                
+
                 else:
                     spedition_names = []
 
@@ -503,7 +486,7 @@ def raport(request):
                     if month_tour:
                         month = dict(functools.reduce(operator.add,
                         map(collections.Counter, month_tour)))
-                        
+
                         # Make a new dict with proper keys
                         month = {
                             "name": truck.name,
@@ -511,7 +494,7 @@ def raport(request):
                             "freight": month["freight"],
                             "rate": "{:.3f}".format(month["freight"]/month["km"])
                         }
-                    
+
                     # If no tours for this month
                     else:
                         month = {
@@ -523,20 +506,26 @@ def raport(request):
                     truck_tours.append(month)
 
             # Average km, freight and rate
-            avg_km = 0 
+            avg_km = 0
             avg_freight = 0
-            
+
 
             for i in truck_tours:
                 avg_km += i["km"]
                 avg_freight += i["freight"]
-            avg_rate = "{:.3f}".format(avg_freight / avg_km)
-            avg_km = "{:.0f}".format(avg_km / len(truck_tours))
-            avg_freight = "{:.2f}".format(avg_freight / len(truck_tours))
+            
+            try:
+                avg_rate = "{:.3f}".format(avg_freight / avg_km)
+                avg_km = "{:.0f}".format(avg_km / len(truck_tours))
+                avg_freight = "{:.2f}".format(avg_freight / len(truck_tours))
+            except ZeroDivisionError:
+                avg_rate = "no data"
+                avg_km = 0
+                avg_freight = 0
 
             return render(request, "truck/raport.html", {
                 "raport": truck_tours,
-                "period": form.cleaned_data["Month"],
+                "period": helpers.month_convert(chosen_month),
                 "year": chosen_year,
                 "avg_km": avg_km,
                 "avg_freight": avg_freight,
@@ -547,13 +536,13 @@ def raport(request):
         else:
             return render(request, "truck/raport.html", {
         "error": "Invalid form",
-    }) 
+    })
     else:
         return render(request, "truck/raport.html", {
     "error": "No input data chosen",
-        }) 
+        })
 
-# Adding spedition from trucks view 
+# Adding spedition from trucks view
 def add_spedition(request):
     if request.method == "POST":
         form = SpeditionForm(request.POST)
@@ -563,7 +552,7 @@ def add_spedition(request):
             spedition = Spedition(user=request.user, name=name)
             spedition.save()
             return HttpResponseRedirect(reverse("trucks"))
-        
+
 def speditions(request):
     if request.method == "POST":
         form = SpeditionForm(request.POST)
@@ -580,14 +569,14 @@ def speditions(request):
             "speditions": speditions,
             "form": EditSpeditionForm(),
             "add": SpeditionForm(),
-        }) 
-    
+        })
+
 def delete_truck(request, truck_id):
     if request.method == "POST":
         truck = Truck.objects.get(pk=truck_id)
         truck.delete()
-        
-        return HttpResponseRedirect(reverse("trucks"))  
+
+        return HttpResponseRedirect(reverse("trucks"))
 
 
 def edit_spedition(request, spedition_id):
@@ -597,10 +586,10 @@ def edit_spedition(request, spedition_id):
         if form.is_valid():
             spedition.name = form.cleaned_data["New_name"]
             spedition.save()
-            return HttpResponseRedirect(reverse("speditions"))  
+            return HttpResponseRedirect(reverse("speditions"))
 
 
-    
+
 def delete_spedition(request, spedition_id):
     if request.method == "POST":
         if len(Spedition.objects.filter(user=request.user)) == 1:
@@ -609,8 +598,8 @@ def delete_spedition(request, spedition_id):
                 "form": EditSpeditionForm(),
                 "add": SpeditionForm(),
                 "error": "Cannot delete all speditions, please add another spedition before deleting that one",
-            })   
+            })
         spedition = Spedition.objects.get(pk=spedition_id)
         spedition.delete()
-        
-        return HttpResponseRedirect(reverse("speditions"))  
+
+        return HttpResponseRedirect(reverse("speditions"))

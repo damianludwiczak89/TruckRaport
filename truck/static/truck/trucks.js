@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
 
     let select_all_trucks = document.querySelector("#all_trucks");
-    let truck_boxes = document.querySelectorAll("#truck_box");
+    let select_all_speds = document.querySelector("#all_sped");
         select_all_trucks.onchange = function () {
         if (select_all_trucks.checked == true) {
             truck_boxes.forEach(function(box) {
@@ -12,10 +12,11 @@ document.addEventListener('DOMContentLoaded', function() {
             truck_boxes.forEach(function(box) {
             box.checked = false;
         });
-        };
+        }};
 
-    let select_all_speds = document.querySelector("#all_sped");
-    let sped_boxes = document.querySelectorAll("#sped_box");
+
+        let truck_boxes = document.querySelectorAll("#truck_box");
+        let sped_boxes = document.querySelectorAll("#sped_box");
         select_all_speds.onchange = function () {
         if (select_all_speds.checked == true) {
             sped_boxes.forEach(function(box) {
@@ -29,4 +30,4 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
     
-}}});
+}});

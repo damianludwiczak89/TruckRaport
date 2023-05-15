@@ -1,28 +1,28 @@
 def month_convert(month):
-    
+
     match month:
-        case "January":
-            month = 1
-        case "February":
-            month = 2
-        case "March":
-            month = 3
-        case "April":
-            month = 4
-        case "May":
-            month = 5
-        case "June":
-            month = 6
-        case "July":
-            month = 7
-        case "August":
-            month = 8
-        case "September":
-            month = 9
-        case "October":
-            month = 10
-        case "November":
-            month = 11
-        case "December":
-            month = 12
+        case 1:
+            month = "January"
+        case 2:
+            month = "February"
+        case 3:
+            month = "March"
+        case 4:
+            month = "April"
+        case 5:
+            month = "May"
+        case 6:
+            month = "June"
+        case 7:
+            month = "July"
+        case 8:
+            month = "August"
+        case 9:
+            month = "September"
+        case 10:
+            month = "October"
+        case 11:
+            month = "November"
+        case 12:
+            month = "December"
     return month

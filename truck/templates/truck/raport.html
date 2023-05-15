@@ -5,22 +5,30 @@
 <script src="{% static 'truck/raport.js' %}"></script>
 {% endblock %}
 {% block body %}
+
+<div id="raport_body">
+
 {% if error %}
 {{ error }}
 {% else %}
-<br>
-Raport for {{ period }}, {{ year }} -
+<div id="raport">
+  <b>
+  Raport for {{ period }}, {{ year }} -
 
-{% if speditions|length > 1 %}
-{{ speditions }}
-{% else %}
-{% for spedition in speditions %} - {{ spedition }} {% endfor %}
+  {% if speditions|length > 1 %}
+    {{ speditions }}
+  {% else %}
+    {% for spedition in speditions %} - {{ spedition }} {% endfor %}
 
-{% endif %}
-<br>
-Average per truck: {{ avg_km }}km -- {{ avg_freight }} € --  {{ avg_rate }} €/km
+  {% endif %}
+  <br>
+  <br>
+  Average per truck: {{ avg_km }}km; {{ avg_freight }} €;  {{ avg_rate }} €/km
+  </b>
+</div>
 
-<table class="table">
+
+<table id="raport_table" class="table table-hover">
     <thead>
       <tr>
         <th scope="col">Truck</th>
@@ -39,4 +47,5 @@ Average per truck: {{ avg_km }}km -- {{ avg_freight }} € --  {{ avg_rate }} �
         </tr>
 {% endfor %}
 {% endif %}
+</div>
 {% endblock %}

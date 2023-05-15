@@ -12,36 +12,35 @@
         {% endblock %}
     </head>
     <body>
-        <div class="row">
-            <div class="sidebar col-lg-2 col-md-3">
-                <h2>Truck Raport</h2>
-                {% if user.is_authenticated %}
-                <div>
-                    <a href="{%  url 'logout' %}">Logout</a>
-                </div>
-                {% else %}
-                 <div>
-                    <a href="{%  url 'login' %}">Login</a>
-                </div>
-                <div>
-                    <a href="{%  url 'register' %}">Register</a>
-                </div>
-                {% endif %}
-                <br>
-                <div>
-                    <a href="{%  url 'index' %}">Home</a>
-                </div>
-                <div>
-                    <a href="{%  url 'trucks' %}">Trucks</a>
-                </div>
 
-                {% block nav %}
-                {% endblock %}
+
+        <nav class="navbar navbar-expand-lg navbar-light", style="background-color: #4c66bc;">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="{% url 'index' %}"><b>TruckRaport</b></a>
+              <a class="navbar-brand" href="{% url 'trucks' %}"><b>Interface</b></a>
+              <ul class="nav justify-content-end">
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                      <a class="nav-link" href="{% url 'logout' %}" style="color: black"><b>Logout ({{ user }})</b></a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                      <a class="nav-link" href="{% url 'login' %}" style="color: black"><b>Login</b></a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="{% url 'register' %}" style="color: black"><b>Register</b></a>
+                    </li>
+
+                    {% endif %}
+                  </li>
+                </ul>
+              </div>
             </div>
-            <div class="main col-lg-10 col-md-9">
+          </nav>
+            
                 {% block body %}
                 {% endblock %}
-            </div>
+            
         </div>
 
     </body>

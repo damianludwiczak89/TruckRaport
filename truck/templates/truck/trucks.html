@@ -4,11 +4,15 @@
 <script src="{% static 'truck/trucks.js' %}"></script>
 {% endblock %}
 {% block body %}
+
+<div id="trucks_body">
+
 <div id="info">
         To generate a raport choose a week or a month for a set date, then choose trucks and speditions you want to include
 </div>
 
 <div id="forms">
+    <div id="add_forms">
 <form action="{% url 'trucks' %}" method="post">
     {% csrf_token %}
     {{ truckform.Name }}
@@ -19,7 +23,7 @@
         {{ spedition.Name }}
         <button type="submit" class="btn btn-success">Add</button>
         </form>
-
+    </div>
 
 <form action="{% url 'raport' %}" method="post">
     {% csrf_token %}
@@ -36,7 +40,7 @@
         Month
     </label>
 </div>
-    {{ raport.Week }} {{ raport.Month }} {{ raport.Year }} <input class="btn btn-success" type="submit" value="Raport">
+    {{ raport.Date }} <input class="btn btn-success" type="submit" value="Raport">
 </div>
 
 
@@ -45,7 +49,7 @@
 <div class="row">
     <div class="column">
 
-<table id="truck_table" class="table table-hover">
+<table class="table table-hover">
     <thead>
       <tr>
         <th scope="col">Truck</th>
@@ -57,7 +61,7 @@
 
 <tr>
     <td>
-        <a href="{% url 'truck_view' truck.id %}">{{ truck.name }}</a> 
+        <a href="{% url 'truck_view' truck.id %}">{{ truck.name }}</a>
     </td>
 
     <td>
@@ -73,7 +77,7 @@
     </div>
     <div class="column">
 
-<table id="sped_table" class="table table-hover">
+<table class="table table-hover">
     <thead>
       <tr>
         <th scope="col">Spedition</th>
@@ -87,7 +91,7 @@
 
 <tr>
     <td>
-        <a href="{% url 'speditions' %}">{{ sped.name }}</a> 
+        <a href="{% url 'speditions' %}">{{ sped.name }}</a>
     </td>
 
     <td>
@@ -100,6 +104,7 @@
 {% endfor %}
 </form>
 </table>
+</div>
 </div>
 </div>
 </div>

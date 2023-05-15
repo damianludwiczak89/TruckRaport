@@ -19,27 +19,171 @@ table {
     background-color: #f1f3f1;
 }
 
+
+
 #forms {
     background-color: #f1f3f1;
     display: flex;
     justify-content: space-between;
+    margin-bottom: 15px;
     padding: 10px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    padding-right: 320px;
+
+}
+
+.btn-success {
+  margin: 5px;
 }
 
 body {
     background-color: #fcfcfc;
+    border-radius: 5px;
 }
+
 
 #info {
-    background-color: #f1f3f1;
-    margin-top: 20px;
-    margin-bottom: 40px;
-    padding: 10px;
-    padding-left: 50px;
-    padding-right: 50px;
+
     text-align: center;
+    margin-top: 15px ;
+    margin-bottom: 15px;
+    padding: 15px;
+    margin-left: 15%;
+    margin-right: 15%;
+  font-size: large;
+
 }
 
+#trucks_body {
+  margin: auto;
+  width: 95%;
+  border-radius: 5px;
+}
+
+#stats {
+  background-color: #f1f3f1;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+#truck_name {
+  font-weight: bold;
+  font-size: 26px;
+  margin-top: 20px;
+  margin-bottom: 15px;
+}
+
+#all {
+  display: flex;
+  justify-content: space-between;
+  background-color: #f1f3f1;
+}
+#truck_forms {
+  background-color: #f1f3f1;
+  border-radius: 5px;
+  padding: 15px;
+}
+
+#add_tour_form {
+  text-align: center;
+}
+
+#edit_tour_form {
+  text-align: center;
+  background-color: #e1e654;
+  margin-bottom: 15px;
+  margin-left: 150px;
+  margin-right: 150px;
+  border-radius: 5px;
+}
+
+#confirmation {
+  padding-top: 90px;
+  padding-bottom: 10px;
+  text-align: center;
+}
+
+
+
+#sped_table {
+  max-width: 60%;
+  text-align: center;
+}
+
+#speditions_body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#add_sped {
+  background-color: #f1f3f1;
+  width: 60%;
+  text-align: center;
+  padding: 10px;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+#error_sped {
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+#raport {
+  background-color: #f1f3f1;
+  width: 60%;
+  text-align: center;
+  padding: 10px;
+  margin-bottom: 20px;
+  margin-top: 20px;
+  font-size: large;
+}
+
+#raport_table {
+  max-width: 60%;
+  text-align: center;
+}
+
+#raport_body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#index_body {
+  display: flex;
+  justify-content: center;
+  margin: auto;
+  background-color: #f1f3f1;
+  width: 60%;
+  text-align: center;
+  padding: 10px;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+#login_body{
+  margin: auto;
+  background-color: #f1f3f1;
+  width: 40%;
+  padding: 10px;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+.form-control {
+  border-radius: 5px;
+  width: 40%;
+  display: flex;
+  align-items: center;
+  margin: 10px;
+
+}
+
+#register_body {
+  margin: auto;
+  background-color: #f1f3f1;
+  width: 40%;
+  padding: 10px;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}

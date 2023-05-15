@@ -6,34 +6,62 @@
 
 
 {% block body %}
-
+<div id="speditions_body">
 <br>
-{% if error %}
-<br><br>{{ error }}<br><br>
-{% endif %}
 
+
+<div id="add_sped">
 <form action="{% url 'speditions' %}" method="post">
   {% csrf_token %}
   {{ add.Name }}
   <button type="submit" class="btn btn-success">Add</button>
   </form>
+</div>
+
+<div id="error_sped">
+
+  {% if error %}
+  <b>{{ error }}</b>
+  {% endif %}
+</div>
+
+  <table id="sped_table" class="table table-hover">
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Edit</th>
+        <th scope="col">Delete</th>
+        <th scope="col"></th>
+      </tr>
+    </thead>
+    <tbody>
+      
 {% for spedition in speditions %}
-
-<ul>{{ spedition }}
+<tr>
+<td>{{ spedition }}</td>
   
+  <td> 
   <form action="{% url 'edit_spedition' spedition.id %}" method="post">
-    {% csrf_token %}
-    {{ form.New_name }}
-  <input class="btn btn-success" type="submit" value="Change">
-  </form>
-  <input class="btn btn-success" data-id="{{ spedition.id }}"  id="delete" type="button" value="Delete">
-  <div data-id="{{ spedition.id }}" style="display: none">
-    <form action="{% url 'delete_spedition' spedition.id %}" method="post">
       {% csrf_token %}
-      <input class="btn btn-danger" type="submit" value="Confirm">
-    </form></div> </ul>
+      {{ form.New_name }}
+    <input class="btn btn-success" type="submit" value="Change">
+    </form>
+  </td>
+  <td>
+    <input class="btn btn-success" data-id="{{ spedition.id }}"  id="delete" type="button" value="Delete">
+    <td/>
+    <td style="width: 100px;">
+    <div data-id="{{ spedition.id }}" style="display: none">
+      <form action="{% url 'delete_spedition' spedition.id %}" method="post">
+        {% csrf_token %}
+        <input class="btn btn-danger" type="submit" value="Confirm">
+      </form>
+    </td>
+  </tr>
 {% endfor %}
-
+</tbody>
+</table>
+</div>
 
 
 {% endblock %}

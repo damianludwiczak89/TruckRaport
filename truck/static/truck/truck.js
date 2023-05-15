@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('#id_Km').onchange = function () {
         km = document.querySelector('#id_Km').value;
         rate = document.querySelector("#id_Rate").value;
-        document.querySelector("#id_Freight").value = km * rate;
+        document.querySelector("#id_Freight").value = parseFloat(km * rate).toFixed(2);
     };
 
     // Change the rate if input freight manullay is gives rate other than default
@@ -52,10 +52,10 @@ document.addEventListener('DOMContentLoaded', function() {
         km = document.querySelector('#id_Km').value;
         rate = document.querySelector("#id_Rate").value;
         freight = document.querySelector("#id_Freight").value;
-        document.querySelector("#id_Rate").value = freight/km;
+        document.querySelector("#id_Rate").value = parseFloat(freight/km).toFixed(3);
     };
 
-    // Same functons as above but for edit form fields
+    // Same functions as above but for edit form fields
     km = document.querySelectorAll('#id_Km');
     km[1].onchange = function () {
         km = document.querySelectorAll('#id_Km');
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
         rate = document.querySelectorAll("#id_Rate");
         rate = rate[1].value;
         freight = document.querySelectorAll("#id_Freight");
-        freight[1].value = km * rate;
+        freight[1].value = parseFloat(km * rate).toFixed(2);
 
     };
     freight = document.querySelectorAll('#id_Freight');
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         freight = document.querySelectorAll("#id_Freight");
         freight = freight[1].value;
-        rate[1].value = freight / km;
+        rate[1].value = parseFloat(freight/km).toFixed(3);
 
     }
 
@@ -120,8 +120,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 freight[1].value = tour.freight;
                 rate[1].value = tour.rate;
                 id.value = tour.id;
-
-                // Fetch for the name of the spe
 
         })
     };

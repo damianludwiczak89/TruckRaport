@@ -1,15 +1,18 @@
 {% extends "truck/layout.html" %}
 {% load static %}
 
+
 {% block body %}
+<div id="index_body">
 <b>
+    TruckRaport is a web-tool for transport companies to generate weekly and monthly raports on how many kilometers were made, and for what price.
+    It was created as a final project for CS50's Introduction to Computer Science.
+    <br><br>
+    <a href="{% url 'trucks' %}"><input class="btn btn-primary" id="delete_truck" type="button" value="Go to Interface"></a>
 
-<b>
-    CSS
+</b>
+</div>
 
-    <br>
-    Dwie tabele obok siebie
-    <br>
 
 
 {% endblock %}
