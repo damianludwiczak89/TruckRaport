@@ -17,6 +17,8 @@ urlpatterns = [
     path("delete_truck/<int:truck_id>", views.delete_truck, name="delete_truck"),
     path("delete_spedition/<int:spedition_id>", views.delete_spedition, name="delete_spedition"),
     path("edit_spedition/<int:spedition_id>", views.edit_spedition, name="edit_spedition"),
+    path("raport_file", views.raport_file, name="raport_file"),
+    path("guest_login", views.guest_login, name="guest_login"),
 
     # API routes
     path("default_rate", views.default_rate, name="default_rate"),

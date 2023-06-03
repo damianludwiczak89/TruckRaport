@@ -336,6 +336,7 @@ def edit_truck(request, truck_id):
 
 
 def raport(request):
+    user_rate = User.objects.get(pk=request.user.id).default_rate
     if request.method == "POST":
         form = RaportForm(request.POST)
         if form.is_valid():
@@ -398,12 +399,19 @@ def raport(request):
                         week = dict(functools.reduce(operator.add,
                         map(collections.Counter, week_tour)))
 
+                        # Calculate extra km (pauschal)
+                        if "{:.3f}".format(week["freight"]/week["km"]) == user_rate:
+                            extra = week["km"]
+                        else:
+                            extra = round(week["freight"]/user_rate)
+
                         # Create a new dict with proper keys
                         week = {
                             "name": truck.name,
                             "km": week["km"],
                             "freight": week["freight"],
-                            "rate": "{:.3f}".format(week["freight"]/week["km"])
+                            "rate": "{:.3f}".format(week["freight"]/week["km"]),
+                            "extra": extra,
                         }
                     # If no tours during that week
                     else:
@@ -411,7 +419,8 @@ def raport(request):
                             "name": truck.name,
                             "km": 0,
                             "freight": 0,
-                            "rate": ""
+                            "rate": "",
+                            "extra": "",
                         }
                     # Add to the list of dictionaries
                     truck_tours.append(week)
@@ -433,7 +442,25 @@ def raport(request):
                     avg_km = 0
                     avg_freight = 0
 
+                # Total extra km paid
+                try:
+                    if float(avg_freight)/float(avg_km) == user_rate:
+                        extra_total = avg_km
+                    else:
+                        extra_total = round(float(avg_freight)/float(user_rate))
+                except ZeroDivisionError:
+                    extra_total = round(float(avg_freight)/float(user_rate))
+            
+
+                # Create a string for a text file to download
+                raport_txt = f"Średnia na {len(trucks)} aut\n{avg_km}km - {avg_freight}€ - {avg_rate}€/km\nZ pauschalem {extra_total}km\n\n"
+
+                for truck in truck_tours:
+                    raport_txt = raport_txt + f"{truck['name']} - {truck['km']}km - {truck['freight']}€ - {truck['rate']}€/km (pauschal {truck['extra']}km)\n"
+
+
                 return render(request, "truck/raport.html", {
+                    "raport_txt": raport_txt,
                     "raport": truck_tours,
                     "period": f"week {chosen_week}",
                     "year": chosen_year,
@@ -487,12 +514,19 @@ def raport(request):
                         month = dict(functools.reduce(operator.add,
                         map(collections.Counter, month_tour)))
 
+                        # Calculate extra km (pauschal)
+                        if "{:.3f}".format(month["freight"]/month["km"]) == user_rate:
+                            extra = month["km"]
+                        else:
+                            extra = round(month["freight"]/user_rate)
                         # Make a new dict with proper keys
                         month = {
                             "name": truck.name,
                             "km": month["km"],
                             "freight": month["freight"],
-                            "rate": "{:.3f}".format(month["freight"]/month["km"])
+                            "rate": "{:.3f}".format(month["freight"]/month["km"]),
+                            "extra": extra
+                            
                         }
 
                     # If no tours for this month
@@ -501,7 +535,8 @@ def raport(request):
                             "name": truck.name,
                             "km": 0,
                             "freight": 0,
-                            "rate": ""
+                            "rate": "",
+                            "extra": ""
                         }
                     truck_tours.append(month)
 
@@ -518,12 +553,29 @@ def raport(request):
                 avg_rate = "{:.3f}".format(avg_freight / avg_km)
                 avg_km = "{:.0f}".format(avg_km / len(truck_tours))
                 avg_freight = "{:.2f}".format(avg_freight / len(truck_tours))
+
             except ZeroDivisionError:
                 avg_rate = "no data"
                 avg_km = 0
                 avg_freight = 0
 
+            try:
+                if float(avg_freight)/float(avg_km) == user_rate:
+                    extra_total = avg_km
+                else:
+                    extra_total = round(float(avg_freight)/float(user_rate))
+            except ZeroDivisionError:
+                extra_total = round(float(avg_freight)/float(user_rate))
+            
+            # Create a string for a text file to download
+            raport_txt = f"Średnia na {len(trucks)} aut\n{avg_km}km - {avg_freight}€ - {avg_rate}€/km\nZ pauschalem {extra_total}km\n\n"
+
+            for truck in truck_tours:
+                raport_txt = raport_txt + f"{truck['name']} - {truck['km']}km - {truck['freight']}€ - {truck['rate']}€/km (pauschal {truck['extra']}km)\n"
+
+
             return render(request, "truck/raport.html", {
+                "raport_txt": raport_txt,
                 "raport": truck_tours,
                 "period": helpers.month_convert(chosen_month),
                 "year": chosen_year,
@@ -603,3 +655,24 @@ def delete_spedition(request, spedition_id):
         spedition.delete()
 
         return HttpResponseRedirect(reverse("speditions"))
+    
+def raport_file(request):
+    raport_txt = request.POST["raport_file"]
+    response = HttpResponse(content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename=raport.txt'
+
+    response.writelines(raport_txt)
+    return response
+
+def guest_login(request):
+    # Attempt to sign user in
+    user = authenticate(request, username="guest", password="guest")
+
+    # Check if authentication successful
+    if user is not None:
+        login(request, user)
+        return HttpResponseRedirect(reverse("trucks"))
+    else:
+        return render(request, "truck/login.html", {
+            "message": "Invalid username and/or password."
+        })

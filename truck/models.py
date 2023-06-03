@@ -66,4 +66,3 @@ class Tour(models.Model):
             "date": self.date,
             "spedition": self.spedition.id,
         }
-    
