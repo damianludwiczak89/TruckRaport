@@ -12,12 +12,6 @@
 {{ error }}
 {% else %}
 <div id="raport">
-
-  <form action="{% url 'raport_file' %}" method="post">
-    {% csrf_token %}
-    <input type="hidden" value="{{ raport_txt }}" name="raport_file">
-    <input class="btn btn-danger" type="submit" value="Download">
-  </form>
   <b>
   Raport for {{ period }}, {{ year }} -
 
@@ -31,6 +25,11 @@
   <br>
   Average per truck: {{ avg_km }}km; {{ avg_freight }} €;  {{ avg_rate }} €/km
   </b>
+  <form action="{% url 'raport_file' %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" value="{{ raport_txt }}" name="raport_file">
+    <input class="btn btn-danger" id ="download_button" type="submit" value="Download">
+  </form>
 </div>
 
 
@@ -41,7 +40,7 @@
         <th scope="col">KM</th>
         <th scope="col">Freight €</th>
         <th scope="col">Rate €/km</th>
-        <th scope="col">KM paid extra</th>
+        <th scope="col">KM + paid above rate</th>
       </tr>
     </thead>
     <tbody>

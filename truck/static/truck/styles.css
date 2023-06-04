@@ -170,6 +170,10 @@ body {
   margin-top: 20px;
 }
 
+#download_button {
+  margin: 10px;
+}
+
 #login_button {
   margin-left:10px;
 }
