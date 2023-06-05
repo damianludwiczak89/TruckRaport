@@ -146,7 +146,7 @@ def trucks(request):
     else:
         # If user not logged in, direct to login page
         try:
-            truck = Truck.objects.filter(user=request.user).order_by("name")
+            truck = Truck.objects.filter(user=request.user).order_by("normalized_name")
             speditions = Spedition.objects.filter(user=request.user)
         except TypeError:
             return render(request, "truck/login.html", {
@@ -187,9 +187,12 @@ def truck_view(request, truck_id):
         page_number = request.GET.get('page')
         tours_pagin = paginator.get_page(page_number)
 
-        # Stats for current week and month
+        # Stats for current week and month + previous week and month
         week = []
         month = []
+        prev_week = []
+        prev_month = []
+
         date = datetime.now()
         for tour in tours:
             if tour.date.isocalendar().week == date.isocalendar().week and tour.date.isocalendar().year == date.isocalendar().year:
@@ -198,12 +201,24 @@ def truck_view(request, truck_id):
                     "freight": tour.freight
                 }
                 week.append(tour_week)
+            elif tour.date.isocalendar().week == date.isocalendar().week - 1 and tour.date.isocalendar().year == date.isocalendar().year:
+                tour_week = {
+                    "km": tour.km,
+                    "freight": tour.freight
+                }
+                prev_week.append(tour_week)
             if datetime.now().month == tour.date.month and tour.date.isocalendar().year == date.isocalendar().year:
                 tour_month = {
                     "km": tour.km,
                     "freight": tour.freight
                 }
                 month.append(tour_month)
+            elif datetime.now().month - 1 == tour.date.month and tour.date.isocalendar().year == date.isocalendar().year:
+                tour_month = {
+                    "km": tour.km,
+                    "freight": tour.freight
+                }
+                prev_month.append(tour_month)  
         if week:
 
             # Add values from dictionary by key
@@ -238,6 +253,40 @@ def truck_view(request, truck_id):
                 "rate": "",
             }
 
+        if prev_week:
+
+            # Add values from dictionary by key
+            previous_week = dict(functools.reduce(operator.add,
+            map(collections.Counter, prev_week)))
+
+            previous_week = {
+                "km": previous_week["km"],
+                "freight": previous_week["freight"],
+                "rate": "{:.3f}".format(previous_week["freight"]/previous_week["km"])
+            }
+        else:
+            previous_week = {
+                "km": 0,
+                "freight": 0,
+                "rate": "",
+            }
+        if prev_month:
+            # Add values from dictionary by key
+            previous_month = dict(functools.reduce(operator.add,
+            map(collections.Counter, prev_month)))
+
+            previous_month = {
+                "km": previous_month["km"],
+                "freight": previous_month["freight"],
+                "rate": "{:.3f}".format(previous_month["freight"]/previous_month["km"])
+            }
+        else:
+            previous_month = {
+                "km": 0,
+                "freight": 0,
+                "rate": "",
+            }
+
 
         return render(request, "truck/truck.html", {
             "truck": truck,
@@ -247,6 +296,8 @@ def truck_view(request, truck_id):
             "edit": EditTruckForm(),
             "week": current_week,
             "month": current_month,
+            "prev_week": previous_week,
+            "prev_month": previous_month,
             "speditions": Spedition.objects.filter(user=request.user)
         })
 
@@ -400,11 +451,10 @@ def raport(request):
                         map(collections.Counter, week_tour)))
 
                         # Calculate extra km (pauschal)
-                        if "{:.3f}".format(week["freight"]/week["km"]) == user_rate:
-                            extra = week["km"]
-                        else:
-                            extra = round(week["freight"]/user_rate)
 
+                        extra = round(week["freight"]/user_rate)
+                        if extra == week["km"]:
+                            extra=""
                         # Create a new dict with proper keys
                         week = {
                             "name": truck.name,
@@ -412,6 +462,7 @@ def raport(request):
                             "freight": week["freight"],
                             "rate": "{:.3f}".format(week["freight"]/week["km"]),
                             "extra": extra,
+                            "id": truck.id,
                         }
                     # If no tours during that week
                     else:
@@ -421,6 +472,7 @@ def raport(request):
                             "freight": 0,
                             "rate": "",
                             "extra": "",
+                            "id": truck.id,
                         }
                     # Add to the list of dictionaries
                     truck_tours.append(week)
@@ -445,21 +497,26 @@ def raport(request):
                 # Total extra km paid
                 try:
                     if float(avg_freight)/float(avg_km) == user_rate:
-                        extra_total = avg_km
+                        extra_total = ""
                     else:
                         extra_total = round(float(avg_freight)/float(user_rate))
                 except ZeroDivisionError:
-                    extra_total = round(float(avg_freight)/float(user_rate))
+                    extra_total = ""
             
 
                 # Create a string for a text file to download
                 raport_txt = f"Średnia na {len(trucks)} aut\n{avg_km}km - {avg_freight}€ - {avg_rate}€/km\nZ pauschalem {extra_total}km\n\n"
 
                 for truck in truck_tours:
-                    raport_txt = raport_txt + f"{truck['name']} - {truck['km']}km - {truck['freight']}€ - {truck['rate']}€/km (pauschal {truck['extra']}km)\n"
+                    if truck["extra"] == "" or truck["km"] == 0:
+                        raport_txt = raport_txt + f"{truck['name']} - {truck['km']}km - {truck['freight']}€ - {truck['rate']}€/km\n"
+
+                    else:
+                        raport_txt = raport_txt + f"{truck['name']} - {truck['km']}km - {truck['freight']}€ - {truck['rate']}€/km (pauschal {truck['extra']}km)\n"
 
 
                 return render(request, "truck/raport.html", {
+                    "truck_amount": len(trucks),
                     "raport_txt": raport_txt,
                     "raport": truck_tours,
                     "period": f"week {chosen_week}",
@@ -515,18 +572,19 @@ def raport(request):
                         map(collections.Counter, month_tour)))
 
                         # Calculate extra km (pauschal)
-                        if "{:.3f}".format(month["freight"]/month["km"]) == user_rate:
-                            extra = month["km"]
-                        else:
-                            extra = round(month["freight"]/user_rate)
+
+                        extra = round(month["freight"]/user_rate)
+                        
+                        if extra == month["km"]:
+                            extra=""
                         # Make a new dict with proper keys
                         month = {
                             "name": truck.name,
                             "km": month["km"],
                             "freight": month["freight"],
                             "rate": "{:.3f}".format(month["freight"]/month["km"]),
-                            "extra": extra
-                            
+                            "extra": extra,
+                            "id": truck.id,                            
                         }
 
                     # If no tours for this month
@@ -536,7 +594,8 @@ def raport(request):
                             "km": 0,
                             "freight": 0,
                             "rate": "",
-                            "extra": ""
+                            "extra": "",
+                            "id": truck.id,
                         }
                     truck_tours.append(month)
 
@@ -561,20 +620,24 @@ def raport(request):
 
             try:
                 if float(avg_freight)/float(avg_km) == user_rate:
-                    extra_total = avg_km
+                    extra_total = ""
                 else:
                     extra_total = round(float(avg_freight)/float(user_rate))
             except ZeroDivisionError:
-                extra_total = round(float(avg_freight)/float(user_rate))
+                extra_total = ""
             
             # Create a string for a text file to download
             raport_txt = f"Średnia na {len(trucks)} aut\n{avg_km}km - {avg_freight}€ - {avg_rate}€/km\nZ pauschalem {extra_total}km\n\n"
 
             for truck in truck_tours:
-                raport_txt = raport_txt + f"{truck['name']} - {truck['km']}km - {truck['freight']}€ - {truck['rate']}€/km (pauschal {truck['extra']}km)\n"
+                if truck["extra"] == "" or truck["km"] == 0:
+                    raport_txt = raport_txt + f"{truck['name']} - {truck['km']}km - {truck['freight']}€ - {truck['rate']}€/km\n"
 
+                else:
+                    raport_txt = raport_txt + f"{truck['name']} - {truck['km']}km - {truck['freight']}€ - {truck['rate']}€/km (pauschal {truck['extra']}km)\n"
 
             return render(request, "truck/raport.html", {
+                "truck_amount": len(trucks),
                 "raport_txt": raport_txt,
                 "raport": truck_tours,
                 "period": helpers.month_convert(chosen_month),

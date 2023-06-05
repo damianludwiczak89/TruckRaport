@@ -23,7 +23,7 @@
   {% endif %}
   <br>
   <br>
-  Average per truck: {{ avg_km }}km; {{ avg_freight }} €;  {{ avg_rate }} €/km
+  Average per truck ({{ truck_amount }}): {{ avg_km }}km; {{ avg_freight }} €;  {{ avg_rate }} €/km
   </b>
   <form action="{% url 'raport_file' %}" method="post">
     {% csrf_token %}
@@ -46,7 +46,7 @@
     <tbody>
         {% for truck in raport %}
         <tr>
-            <td>{{ truck.name  }}</td>
+            <td><a href="{% url 'truck_view' truck.id %}">{{ truck.name  }}</a></td>
             <td>{{ truck.km  }}</td>
             <td>{{ truck.freight  }}</td>
             <td>{{ truck.rate }}</td>

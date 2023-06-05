@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models.signals import pre_save
+import re
 
 
 # Create your models here.
@@ -20,6 +22,7 @@ class Truck(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=20, default="Default")
+    normalized_name = models.CharField(max_length=20, default="Default")
 
     def __str__(self):
         return f"{self.name}"
@@ -29,6 +32,14 @@ class Truck(models.Model):
             "id": self.id,
             "name": self.name,
         }
+def create_normalize_name(instance):
+    normalize = re.sub("\D", "", instance.name).zfill(4)
+    normalized_name = re.sub("(\d{1,4})", normalize, instance.name)
+    return normalized_name
+
+def receiver(sender, instance, *args, **kwargs):
+    instance.normalized_name = create_normalize_name(instance)
+pre_save.connect(receiver, sender=Truck)
     
 class Spedition (models.Model):
     id = models.AutoField(primary_key=True)
