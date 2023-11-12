@@ -453,8 +453,11 @@ def raport(request):
                         # Calculate extra km (pauschal)
 
                         extra = round(week["freight"]/user_rate)
+                        extra_sum = week["freight"] - (week["km"] * user_rate)
+                        extra_sum = f"({extra_sum} €)"
                         if extra == week["km"]:
                             extra=""
+                            extra_sum = ""
                         # Create a new dict with proper keys
                         week = {
                             "name": truck.name,
@@ -462,6 +465,7 @@ def raport(request):
                             "freight": week["freight"],
                             "rate": "{:.3f}".format(week["freight"]/week["km"]),
                             "extra": extra,
+                            "extra_sum": extra_sum,
                             "id": truck.id,
                         }
                     # If no tours during that week
@@ -472,6 +476,7 @@ def raport(request):
                             "freight": 0,
                             "rate": "",
                             "extra": "",
+                            "extra_sum": "",
                             "id": truck.id,
                         }
                     # Add to the list of dictionaries
@@ -480,11 +485,14 @@ def raport(request):
                 # Calculate average km, freight and rate
                 avg_km = 0
                 avg_freight = 0
+                extra_sum_total = 0
+                
 
 
                 for i in truck_tours:
                     avg_km += i["km"]
                     avg_freight += i["freight"]
+                    extra_sum_total += i["freight"] - (i["km"] * user_rate)
                 try:
                     avg_rate = "{:.3f}".format(avg_freight / avg_km)
                     avg_km = "{:.0f}".format(avg_km / len(truck_tours))
@@ -505,14 +513,14 @@ def raport(request):
             
 
                 # Create a string for a text file to download
-                raport_txt = f"Średnia na {len(trucks)} aut\n{avg_km}km - {avg_freight}€ - {avg_rate}€/km\nZ pauschalem {extra_total}km\n\n"
+                raport_txt = f"Średnia na {len(trucks)} aut\n{avg_km}km - {avg_freight}€ - {avg_rate}€/km\nZ pauschalem {extra_total}km (+{extra_sum_total} €)\n\n"
 
                 for truck in truck_tours:
                     if truck["extra"] == "" or truck["km"] == 0:
                         raport_txt = raport_txt + f"{truck['name']} - {truck['km']}km - {truck['freight']}€ - {truck['rate']}€/km\n"
 
                     else:
-                        raport_txt = raport_txt + f"{truck['name']} - {truck['km']}km - {truck['freight']}€ - {truck['rate']}€/km (pauschal {truck['extra']}km)\n"
+                        raport_txt = raport_txt + f"{truck['name']} - {truck['km']}km - {truck['freight']}€ - {truck['rate']}€/km (pauschal {truck['extra']}km, {truck['extra_sum']}\n"
 
 
                 return render(request, "truck/raport.html", {
@@ -524,6 +532,7 @@ def raport(request):
                     "avg_km": avg_km,
                     "avg_freight": avg_freight,
                     "avg_rate": avg_rate,
+                    "extra_sum_total": extra_sum_total,
                     "speditions": spedition_names,
                 })
             else:
@@ -574,9 +583,11 @@ def raport(request):
                         # Calculate extra km (pauschal)
 
                         extra = round(month["freight"]/user_rate)
-                        
+                        extra_sum = month["freight"] - (month["km"] * user_rate)
+                        extra_sum = f"({extra_sum} €)"
                         if extra == month["km"]:
                             extra=""
+                            extra_sum = ""
                         # Make a new dict with proper keys
                         month = {
                             "name": truck.name,
@@ -584,6 +595,7 @@ def raport(request):
                             "freight": month["freight"],
                             "rate": "{:.3f}".format(month["freight"]/month["km"]),
                             "extra": extra,
+                            "extra_sum": extra_sum,
                             "id": truck.id,                            
                         }
 
@@ -595,6 +607,7 @@ def raport(request):
                             "freight": 0,
                             "rate": "",
                             "extra": "",
+                            "extra_sum": "",
                             "id": truck.id,
                         }
                     truck_tours.append(month)
@@ -602,11 +615,12 @@ def raport(request):
             # Average km, freight and rate
             avg_km = 0
             avg_freight = 0
-
+            extra_sum_total = 0
 
             for i in truck_tours:
                 avg_km += i["km"]
                 avg_freight += i["freight"]
+                extra_sum_total += i["freight"] - (i["km"] * user_rate)
             
             try:
                 avg_rate = "{:.3f}".format(avg_freight / avg_km)
@@ -627,14 +641,14 @@ def raport(request):
                 extra_total = ""
             
             # Create a string for a text file to download
-            raport_txt = f"Średnia na {len(trucks)} aut\n{avg_km}km - {avg_freight}€ - {avg_rate}€/km\nZ pauschalem {extra_total}km\n\n"
+            raport_txt = f"Średnia na {len(trucks)} aut\n{avg_km}km - {avg_freight}€ - {avg_rate}€/km\nZ pauschalem {extra_total}km (+{extra_sum_total} €)\n\n"
 
             for truck in truck_tours:
                 if truck["extra"] == "" or truck["km"] == 0:
                     raport_txt = raport_txt + f"{truck['name']} - {truck['km']}km - {truck['freight']}€ - {truck['rate']}€/km\n"
 
                 else:
-                    raport_txt = raport_txt + f"{truck['name']} - {truck['km']}km - {truck['freight']}€ - {truck['rate']}€/km (pauschal {truck['extra']}km)\n"
+                    raport_txt = raport_txt + f"{truck['name']} - {truck['km']}km - {truck['freight']}€ - {truck['rate']}€/km (pauschal {truck['extra']}km), {truck['extra_sum']}\n"
 
             return render(request, "truck/raport.html", {
                 "truck_amount": len(trucks),
@@ -645,6 +659,7 @@ def raport(request):
                 "avg_km": avg_km,
                 "avg_freight": avg_freight,
                 "avg_rate": avg_rate,
+                "extra_sum_total": extra_sum_total,
                 "speditions": spedition_names,
             })
 

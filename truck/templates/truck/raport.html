@@ -23,7 +23,8 @@
   {% endif %}
   <br>
   <br>
-  Average per truck ({{ truck_amount }}): {{ avg_km }}km; {{ avg_freight }} €;  {{ avg_rate }} €/km
+  Average per truck ({{ truck_amount }}): {{ avg_km }}km; {{ avg_freight }} €;  {{ avg_rate }} €/km<br>
+  Total pauschal {{ extra_sum_total }} €
   </b>
   <form action="{% url 'raport_file' %}" method="post">
     {% csrf_token %}
@@ -50,7 +51,7 @@
             <td>{{ truck.km  }}</td>
             <td>{{ truck.freight  }}</td>
             <td>{{ truck.rate }}</td>
-            <td>{{ truck.extra }}</td>
+            <td>{{ truck.extra }} {{ truck.extra_sum }}</td>
         </tr>
 {% endfor %}
 {% endif %}
