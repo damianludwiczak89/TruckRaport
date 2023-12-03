@@ -152,13 +152,19 @@ def trucks(request):
             return render(request, "truck/login.html", {
                 "message": "Required to log in"
             })
-
+        
+        if str(request.user) == "admin":
+            print('yes')
+            message = "🎅🎁 Miłego dnia 🎁🎅"
+        else:
+            message = ""
         return render(request, "truck/trucks.html", {
             "truckform": TruckForm(),
             "trucks": truck,
             "raport": RaportForm(),
             "spedition": SpeditionForm(),
-            "speditions": speditions
+            "speditions": speditions,
+            "message": message,
         })
 
 def truck_view(request, truck_id):
