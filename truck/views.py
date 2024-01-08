@@ -154,8 +154,7 @@ def trucks(request):
             })
         
         if str(request.user) == "admin":
-            print('yes')
-            message = "🎅🎁 Miłego dnia 🎁🎅"
+            message = " Miłego dnia 😸"
         else:
             message = ""
         return render(request, "truck/trucks.html", {
