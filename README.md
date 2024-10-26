@@ -1,6 +1,18 @@
 # TruckRaport
 
+http://truckraport.pythonanywhere.com - sometimes loads on a 2nd try, server side issue
+
 ## Video: https://youtu.be/x7GzCzwvY14
+
+## Setup
+
+```
+pip install -r requirements.txt
+python manage.py makemigrations
+python manage.py migrate
+python manage.py runserver
+```
+Go to provided link (http://127.0.0.1:8000/ by default)
 
 ## Introduction
 
